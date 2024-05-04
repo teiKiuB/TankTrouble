@@ -233,12 +233,3 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_rect.centery = self.position.y     # centerize of rectangle to rotate depend on center
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
-
-
-
-
-
-
-
-
-

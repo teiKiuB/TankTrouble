@@ -20,6 +20,7 @@ class Game:
         self.SCORE1 = 0
         self.SCORE2 = 0
         self.data()
+        self.game_over = False
 
     def data(self):
             folder_of_game = path.dirname(__file__)  # location of main.py
@@ -61,11 +62,22 @@ class Game:
                     self.player = Player(self, col, row)
                 if tile == '-':
                     self.enemy = Enemy(self, col, row)
-
+                    
+        self.game_over = False  # Đặt lại trạng thái game
+        self.Score = False # reset score 
+    
     def run(self):
-        self.playing = True
-        self.Score = False
-
+        
+        while not self.game_over:  # Thay đổi điều kiện dừng vòng lặp
+            self.changing_time = self.clock.tick(FPS) / 1000
+            self.events()
+            self.update()
+            self.draw()
+            
+        # Reset trạng thái điểm khi kết thúc màn chơi
+        self.SCORE2 = 0
+        self.SCORE1 = 0
+        
         while self.playing:
             self.changing_time = self.clock.tick(FPS) / 1000
             self.events()
@@ -92,6 +104,9 @@ class Game:
             if event.type == pygame.QUIT:
                 self.quit()
 
+            if self.game_over and event.type == pygame.KEYUP:
+                self.new()
+                self.run()
     def update(self):
         # keep track changing
         self.all_sprites.update()
@@ -144,6 +159,7 @@ class Game:
         drawing_text(self.screen, 'Press a key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
         pygame.display.flip()
         self.wait_for_key()
+        self.game_over = True
 
     def show_go_screen2(self):
         self.screen.fill(BROWN)
@@ -151,20 +167,20 @@ class Game:
         drawing_text(self.screen, 'Press a key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
         pygame.display.flip()
         self.wait_for_key()
+        self.game_over = True
 
 
     def wait_for_key(self):
-        pygame.event.wait()
-        waiting = True
-        while waiting:
-            self.clock.tick(FPS)  # keep loop running
+        key_pressed = False
+        while not key_pressed:
+            self.clock.tick(FPS)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    waiting = False
                     self.quit()
                 if event.type == pygame.KEYUP:
-                    self.Score = True
-                    waiting = False
+                    key_pressed = True
+        self.Score = False  # Đặt lại trạng thái chơi game
+
                     
     def menu(self):
         scaler_bg = pygame.transform.scale(bgStart, (WIDTH, HEIGHT))
@@ -183,7 +199,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.quit()
                 if event.type == pygame.KEYUP:
-                    self.Score = True
+                    self.Score = False
                     break  # Thoát khỏi vòng lặp
 
             # Kiểm tra xem nút đã được nhấn chưa
@@ -226,3 +242,5 @@ while True:
     g.menu()
     g.new()
     g.run()
+    if not g.Score:  # Nếu người chơi đã kết thúc màn chơi
+        continue  # Quay lại menu
