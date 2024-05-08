@@ -8,6 +8,8 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 bgStart = pygame.image.load('imagefolder/bgS.png').convert_alpha()
 btnStart = pygame.image.load('imagefolder/btnStart.png').convert_alpha()
+nameGame = pygame.image.load('imagefolder/nameGame.png').convert_alpha()
+btnExit = pygame.image.load('imagefolder/btnExit.png').convert_alpha()
 
 class Game:
 
@@ -122,7 +124,7 @@ class Game:
                 self.player.kill()
                 self.SCORE1 += 1
                 self.playing = False
-
+                pygame.time.delay(150)
                 self.data()
                 self.new()
                 if self.SCORE1 == 5:
@@ -130,15 +132,20 @@ class Game:
         self.hits2 = pygame.sprite.spritecollide(self.enemy, self.bullets, True, collide)
         for hit in self.hits2:
             if hit:
-                Explosion(self, hit.rect.center)
+                Explosion(self, hit.rect.center)  # Create explosion
                 self.explosion_sound.play()
-                self.enemy.kill()
+                self.player.kill()
                 self.SCORE2 += 1
                 self.playing = False
+                pygame.time.delay(150)
                 self.data()
                 self.new()
                 if self.SCORE2 == 5:
                     self.show_go_screen2()
+                    
+        # Draw all sprites after updating the explosions
+        self.all_sprites.draw(self.screen)
+        pygame.display.flip()  # Update the display after drawing
 
     def draw(self):
         # flip all the thing to screen
@@ -156,7 +163,7 @@ class Game:
     def show_go_screen1(self):
         self.screen.fill(BROWN)
         drawing_text(self.screen, 'Green Tank wins', 80, WIDTH / 2, HEIGHT / 3, GREEN)
-        drawing_text(self.screen, 'Press a key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        drawing_text(self.screen, 'Press any key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
@@ -164,7 +171,7 @@ class Game:
     def show_go_screen2(self):
         self.screen.fill(BROWN)
         drawing_text(self.screen, 'Blue Tank Wins', 80, WIDTH / 2, HEIGHT / 3, BLUE)
-        drawing_text(self.screen, 'Press a key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        drawing_text(self.screen, 'Press any key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
@@ -186,10 +193,16 @@ class Game:
         scaler_bg = pygame.transform.scale(bgStart, (WIDTH, HEIGHT))
         self.screen.blit(scaler_bg, (0, 0))
         
+        name_game = Button(100, 30, nameGame)
+        name_game.draw()
+        
         # Tạo nút "btnStart"
         btn_start = Button(450, 300, btnStart)
         btn_start.draw()
-
+        
+        btn_exit = Button(470, 450, btnExit)
+        btn_exit.draw()
+        
         pygame.display.flip()
         pygame.display.update()
 
@@ -205,6 +218,9 @@ class Game:
             # Kiểm tra xem nút đã được nhấn chưa
             if btn_start.draw():
                 break  # Thoát khỏi vòng lặp khi nút được nhấn
+            elif btn_exit.draw():
+                pygame.quit()
+                quit()  # Exit the game if the exit button is clicked
 
    
 class Button():
