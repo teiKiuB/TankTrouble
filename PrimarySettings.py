@@ -38,9 +38,9 @@ WALL_IMAGE = 'dirt.png'
 RotationSpeedOfPlayer = 120  # degree in second
 RotationSpeedOfEnemy = 120
 
-player_box = pygame.Rect(0, 0, 15, 18)
-enemy_box = pygame.Rect(0, 0, 15, 18)
-bullet_box = pygame.Rect(0, 0, 10, 10)
+player_box = pygame.Rect(0, 0, 20, 23)
+enemy_box = pygame.Rect(0, 0, 20, 23)
+bullet_box = pygame.Rect(0, 0, 11, 11)
 
 # shooting setting
 BULLET_IMAGE = 'BULLET.png'
