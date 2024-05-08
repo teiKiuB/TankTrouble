@@ -19,6 +19,9 @@ class Player(pygame.sprite.Sprite):
         self.rot = 0  # degree
         self.last_fire = 0
 
+        self.has_shield = False  # Flag to track if the player has a shield
+        self.shield_radius =25  # Radius of the shield
+
     def keys(self):
         # get key for velocity every frame
         self.rotation_speed = 0  # not rotating
@@ -77,8 +80,10 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-        # Kiểm tra va chạm với item shield
-        self.hit_shield()
+        
+        if self.has_shield:
+            # Draw shield around the tank
+            pygame.draw.circle(self.game.screen, RED, self.rect.center, self.shield_radius, 2)  # Change GREEN to the color you want
 
     def collide_with_tanks(self):
         # Kiểm tra va chạm với các xe tăng khác
@@ -87,13 +92,9 @@ class Player(pygame.sprite.Sprite):
                 if collide(self, tank):
                     self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
 
-    def hit_shield(self):
-        # Kiểm tra va chạm với item shield
-        hits = pygame.sprite.spritecollide(self, self.game.shield, True)
-        if hits:
-            self.game.player_has_shield = True  # Đặt cờ hiệu player đã có shield
-            # Xử lý khi player ăn item shield
-            # Đặc tả hành động cần thực hiện khi player ăn item shield
+    def get_shield(self):
+        # Activate shield
+        self.has_shield = True
 
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -252,23 +253,18 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.center = self.hit_rect.center
 
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-        # Kiểm tra va chạm với item shield
-        self.hit_shield()
-        
+
     def collide_with_tanks(self):
         # Kiểm tra va chạm với các xe tăng khác
         for tank in self.game.all_sprites:
             if tank != self and isinstance(tank, Player):
                 if collide(self, tank):
                     self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
+    
+    def get_shield(self):
+        # Increase the size of the hit rectangle
+        self.hit_rect.inflate_ip(50, 50)  # Increase width and height by 50 pixels
 
-    def hit_shield(self):
-        # Kiểm tra va chạm với item shield
-        hits = pygame.sprite.spritecollide(self, self.game.shield, True)
-        if hits:
-            self.game.enemy_has_shield = True  # Đặt cờ hiệu enemy đã có shield
-            # Xử lý khi enemy ăn item shield
-            # Đặc tả hành động cần thực hiện khi enemy ăn item shield
 # -----------------------------------------------------------------------------------------------------------------
 class ShieldItem(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -277,7 +273,18 @@ class ShieldItem(pygame.sprite.Sprite):
         self.game = game
         self.image = game.shield_image
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
         self.rect.x = x * SQSIZE
         self.rect.y = y * SQSIZE
+
+
+    def update(self):
+        # Check collision with player
+        if pygame.sprite.collide_rect(self, self.game.player):
+            self.kill()
+            self.game.player.get_shield()
+
+        # Check collision with enemy
+        if pygame.sprite.collide_rect(self, self.game.enemy):
+            self.kill()
+            self.game.enemy.get_shield()
+
