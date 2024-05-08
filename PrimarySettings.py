@@ -34,13 +34,15 @@ enemySpeed = 100
 PLAYER_IMAGE = 'tank_blue.png'
 ENEMY_IMAGE = 'tank_green.png'
 WALL_IMAGE = 'dirt.png'
+SHIELD_IMAGE = 'tank-shield.png'
 
 RotationSpeedOfPlayer = 120  # degree in second
 RotationSpeedOfEnemy = 120
 
-player_box = pygame.Rect(0, 0, 20, 23)
-enemy_box = pygame.Rect(0, 0, 20, 23)
-bullet_box = pygame.Rect(0, 0, 11, 11)
+player_box = pygame.Rect(0, 0, 16, 16)
+enemy_box = pygame.Rect(0, 0, 16, 16)
+bullet_box = pygame.Rect(0, 0, 15, 15)
+
 
 # shooting setting
 BULLET_IMAGE = 'BULLET.png'
@@ -64,4 +66,3 @@ def drawing_text(surf, text, size, x, y, color):
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
-

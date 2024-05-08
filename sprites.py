@@ -2,7 +2,6 @@ import pygame
 from PrimarySettings import *
 import random
 
-
 vector = pygame.math.Vector2
 
 
@@ -77,6 +76,15 @@ class Player(pygame.sprite.Sprite):
         self.hit_rect.centery = self.position.y
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
+        self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
+
+    def collide_with_tanks(self):
+        # Kiểm tra va chạm với các xe tăng khác
+        for tank in self.game.all_sprites:
+            if tank != self and isinstance(tank, Enemy):
+                if collide(self, tank):
+                    self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
+
 
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -126,7 +134,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.position += self.vel * self.game.changing_time
         self.rect.center = self.position  # update our rectangle to that location
-        if pygame.sprite.spritecollide(self, self.game.walls, False, False):
+        if pygame.sprite.spritecollide(self, self.game.walls, False):
             if self.vel.y > 0 and self.vel.x == 0:
                 self.vel *= -1
             elif self.vel.y < 0 and self.vel.x == 0:
@@ -199,7 +207,6 @@ class Enemy(pygame.sprite.Sprite):
                 self.game.shoot_sound.play()
 
     def collide_with_walls(self, direction):
-
         if direction == 'x_direction':
             hits = pygame.sprite.spritecollide(self, self.game.walls, False, collide)
             if hits:
@@ -234,3 +241,25 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_rect.centery = self.position.y     # centerize of rectangle to rotate depend on center
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
+
+        self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
+
+    def collide_with_tanks(self):
+        # Kiểm tra va chạm với các xe tăng khác
+        for tank in self.game.all_sprites:
+            if tank != self and isinstance(tank, Player):
+                if collide(self, tank):
+                    self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
+
+# -----------------------------------------------------------------------------------------------------------------
+class ShieldItem(pygame.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites
+        pygame.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = game.shield_image
+        self.rect = self.image.get_rect()
+        self.hit_rect = pygame.Rect(0, 0, 16, 16)  # Kích thước hit box cho shield
+        self.hit_rect.center = self.rect.center
+        self.position = vector(x, y) * SQSIZE
+

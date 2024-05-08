@@ -13,6 +13,7 @@ btnExit = pygame.image.load('imagefolder/btnExit.png').convert_alpha()
 cup = pygame.image.load('imagefolder/cup.png').convert_alpha()
 player1 = pygame.image.load('imagefolder/tank_green.png').convert_alpha()
 player2 = pygame.image.load('imagefolder/tank_blue.png').convert_alpha()
+shield = pygame.image.load('imagefolder/tank-shield.png').convert_alpha()
 
 
 class Game:
@@ -34,7 +35,7 @@ class Game:
             Mazefolder = path.join(folder_of_game, 'MAZEFOLDER')
             sound_folder = path.join(folder_of_game, 'snd')
             self.maze = []
-            i = random.randint(1, 20)
+            i = random.randint(1, 10)
             with open(path.join(Mazefolder, 'MAZE{}.txt'.format(i)), 'rt') as f:
                 for line in f:
                     self.maze.append(line)
@@ -54,6 +55,10 @@ class Game:
                 self.image_loading_of_explosion.set_colorkey(BLACK)
                 self.image = pygame.transform.scale(self.image_loading_of_explosion, (50, 50))
                 self.explosion_list.append(self.image)
+            
+            self.shield_image = pygame.image.load(path.join(image_folder, SHIELD_IMAGE)).convert()
+            self.shield_image.set_colorkey(WHITE)
+
 
     def new(self):
         # initializing all variables and setup them for a new game
@@ -68,12 +73,13 @@ class Game:
                     self.player = Player(self, col, row)
                 if tile == '-':
                     self.enemy = Enemy(self, col, row)
+                if tile == '@':
+                    self.shield =  ShieldItem(self, col, row)
                     
         self.game_over = False  # Đặt lại trạng thái game
         self.Score = False # reset score 
     
     def run(self):
-        
         while not self.game_over:  # Thay đổi điều kiện dừng vòng lặp
             self.changing_time = self.clock.tick(FPS) / 1000
             self.events()
@@ -162,6 +168,9 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.grid()
         self.all_sprites.draw(self.screen)
+        # kietbui
+        # item_rect = self.threebullet.get_rect(center=self.screen.get_rect().center)
+        # self.screen.blit(self.threebullet, item_rect)
         drawing_text(self.screen, str(self.SCORE1) + ':Green Tank', 25, 150, 710, GREEN)
         drawing_text(self.screen, 'Blue Tank:' + str(self.SCORE2), 25, 900, 710, BLUE)
         pygame.display.flip()
