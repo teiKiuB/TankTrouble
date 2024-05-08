@@ -44,7 +44,7 @@ bullet_box = pygame.Rect(0, 0, 15, 15)
 
 # shooting setting
 BULLET_IMAGE = 'BULLET.png'
-bulletSpeed = 500
+bulletSpeed = 300
 Bullet_life_time = 4000  # 1 second
 bullet_repeating = 300
 bullet_rate = 700  # HOW FAST THE BULLET GET PRODUCED

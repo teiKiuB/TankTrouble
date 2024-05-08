@@ -10,6 +10,10 @@ bgStart = pygame.image.load('imagefolder/bgS.png').convert_alpha()
 btnStart = pygame.image.load('imagefolder/btnStart.png').convert_alpha()
 nameGame = pygame.image.load('imagefolder/nameGame.png').convert_alpha()
 btnExit = pygame.image.load('imagefolder/btnExit.png').convert_alpha()
+cup = pygame.image.load('imagefolder/cup.png').convert_alpha()
+player1 = pygame.image.load('imagefolder/tank_green.png').convert_alpha()
+player2 = pygame.image.load('imagefolder/tank_blue.png').convert_alpha()
+
 
 class Game:
 
@@ -124,7 +128,7 @@ class Game:
                 self.player.kill()
                 self.SCORE1 += 1
                 self.playing = False
-                pygame.time.delay(150)
+                pygame.time.delay(1000)
                 self.data()
                 self.new()
                 if self.SCORE1 == 5:
@@ -137,7 +141,7 @@ class Game:
                 self.player.kill()
                 self.SCORE2 += 1
                 self.playing = False
-                pygame.time.delay(150)
+                pygame.time.delay(1000)
                 self.data()
                 self.new()
                 if self.SCORE2 == 5:
@@ -162,16 +166,23 @@ class Game:
 
     def show_go_screen1(self):
         self.screen.fill(BROWN)
-        drawing_text(self.screen, 'Green Tank wins', 80, WIDTH / 2, HEIGHT / 3, GREEN)
+        self.screen.blit(cup, (400,0))
+        drawing_text(self.screen, 'Green Tank Win', 80, WIDTH / 2, HEIGHT / 3, GREEN)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE1) + '-' + str(self.SCORE2), 40, WIDTH / 2,  340, GREEN)
         drawing_text(self.screen, 'Press any key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        scaled_player1 = pygame.transform.scale(player1, (300, 300))
+        self.screen.blit(scaled_player1, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
-
     def show_go_screen2(self):
         self.screen.fill(BROWN)
-        drawing_text(self.screen, 'Blue Tank Wins', 80, WIDTH / 2, HEIGHT / 3, BLUE)
+        self.screen.blit(cup, (400,0))
+        drawing_text(self.screen, 'Blue Tank Win', 80, WIDTH / 2, HEIGHT / 3, BLUE)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE2) + '-' + str(self.SCORE1) , 40, WIDTH / 2, 340, BLUE)
         drawing_text(self.screen, 'Press any key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        scaled_player2 = pygame.transform.scale(player2, (300, 300))
+        self.screen.blit(scaled_player2, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
