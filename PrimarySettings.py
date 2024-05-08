@@ -60,9 +60,22 @@ def collide(sprite1, sprite2):
 font_name = pygame.font.match_font('arial')
 
 
-def drawing_text(surf, text, size, x, y, color):
-    font = pygame.font.Font(font_name, size)   # create font object file
+# def drawing_text(surf, text, size, x, y, color):
+#     font = pygame.font.Font(font_name, size)   # create font object file
+#     text_surface = font.render(text, True, color)
+#     text_rect = text_surface.get_rect()
+#     text_rect.midtop = (x, y)
+#     surf.blit(text_surface, text_rect)
+    
+def drawing_text(surf, text, size, x, y, color, bg_color=None):
+    font = pygame.font.Font(font_name, size)
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
     text_rect.midtop = (x, y)
+
+    if bg_color is not None:
+        bg_surface = pygame.Surface(text_surface.get_size())
+        bg_surface.fill(bg_color)
+        surf.blit(bg_surface, text_rect)
+
     surf.blit(text_surface, text_rect)

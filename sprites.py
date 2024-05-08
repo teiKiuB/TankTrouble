@@ -259,7 +259,10 @@ class ShieldItem(pygame.sprite.Sprite):
         self.game = game
         self.image = game.shield_image
         self.rect = self.image.get_rect()
-        self.hit_rect = pygame.Rect(0, 0, 16, 16)  # Kích thước hit box cho shield
-        self.hit_rect.center = self.rect.center
-        self.position = vector(x, y) * SQSIZE
-
+        # self.hit_rect = pygame.Rect(0, 0, 16, 16)  # Kích thước hit box cho shield
+        # self.hit_rect.center = self.rect.center
+        # self.position = vector(x, y) * SQSIZE
+        self.x = x
+        self.y = y
+        self.rect.x = x * SQSIZE
+        self.rect.y = y * SQSIZE

@@ -14,7 +14,8 @@ cup = pygame.image.load('imagefolder/cup.png').convert_alpha()
 player1 = pygame.image.load('imagefolder/tank_green.png').convert_alpha()
 player2 = pygame.image.load('imagefolder/tank_blue.png').convert_alpha()
 shield = pygame.image.load('imagefolder/tank-shield.png').convert_alpha()
-
+bgWin = pygame.image.load('imagefolder/bgWin.png').convert_alpha()
+textWin = pygame.image.load('imagefolder/textWin.png').convert_alpha()
 
 class Game:
 
@@ -26,6 +27,7 @@ class Game:
         pygame.display.set_caption(TITLE)
         self.SCORE1 = 0
         self.SCORE2 = 0
+        self.last_maze_no = 0
         self.data()
         self.game_over = False
 
@@ -35,7 +37,11 @@ class Game:
             Mazefolder = path.join(folder_of_game, 'MAZEFOLDER')
             sound_folder = path.join(folder_of_game, 'snd')
             self.maze = []
-            i = random.randint(1, 10)
+            if hasattr(self, 'last_maze_no'):
+                i = random.choice([j for j in range(1, 11) if j != self.last_maze_no])
+            else:
+                i = random.randint(1, 10)
+            self.last_maze_no = i
             with open(path.join(Mazefolder, 'MAZE{}.txt'.format(i)), 'rt') as f:
                 for line in f:
                     self.maze.append(line)
@@ -137,8 +143,8 @@ class Game:
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
             pygame.time.delay(1000)
-            self.new()
             self.data()
+            self.new()
             
         if self.SCORE1 == 5:
             self.show_go_screen1()
@@ -153,8 +159,8 @@ class Game:
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
             pygame.time.delay(1000)
-            self.new()
             self.data()
+            self.new()
             
         if self.SCORE2 == 5:
             self.show_go_screen2()
@@ -168,11 +174,10 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.grid()
         self.all_sprites.draw(self.screen)
-        # kietbui
         # item_rect = self.threebullet.get_rect(center=self.screen.get_rect().center)
         # self.screen.blit(self.threebullet, item_rect)
-        drawing_text(self.screen, str(self.SCORE1) + ':Green Tank', 25, 150, 710, GREEN)
-        drawing_text(self.screen, 'Blue Tank:' + str(self.SCORE2), 25, 900, 710, BLUE)
+        drawing_text(self.screen, str(self.SCORE1) + ':Green Tank', 25, 150, 710, GREEN,None)
+        drawing_text(self.screen, 'Blue Tank:' + str(self.SCORE2), 25, 900, 710, BLUE,None)
         pygame.display.flip()
 
     def quit(self):
@@ -180,24 +185,31 @@ class Game:
         quit()
 
     def show_go_screen1(self):
-        self.screen.fill(BROWN)
-        self.screen.blit(cup, (400,0))
-        drawing_text(self.screen, 'Green Tank Win', 80, WIDTH / 2, HEIGHT / 3, GREEN)
-        drawing_text(self.screen, 'SCORE:' + str(self.SCORE1) + '-' + str(self.SCORE2), 40, WIDTH / 2,  340, GREEN)
-        drawing_text(self.screen, 'Press enter key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
-        scaled_player1 = pygame.transform.scale(player1, (300, 300))
-        self.screen.blit(scaled_player1, (350,500))
+        bg = pygame.transform.scale(bgWin, (WIDTH, HEIGHT))
+        self.screen.blit(bg,(0,0))
+        tWin = Button(110, 0, textWin)
+        tWin.draw()
+        self.screen.blit(cup, (400,100))
+        drawing_text(self.screen, 'Green Tank Win', 40, WIDTH / 2, HEIGHT / 3, GREEN,WHITE)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE1) + '-' + str(self.SCORE2), 40, 500,  340, GREEN,WHITE)
+        drawing_text(self.screen, 'Nhan ENTER de tiep tuc', 20, WIDTH/2 , 700 , RED,None)
+        # scaled_player1 = pygame.transform.scale(player1, (300, 300))
+        # self.screen.blit(scaled_player1, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
+        
     def show_go_screen2(self):
-        self.screen.fill(BROWN)
-        self.screen.blit(cup, (400,0))
-        drawing_text(self.screen, 'Blue Tank Win', 80, WIDTH / 2, HEIGHT / 3, BLUE)
-        drawing_text(self.screen, 'SCORE:' + str(self.SCORE2) + '-' + str(self.SCORE1) , 40, WIDTH / 2, 340, BLUE)
-        drawing_text(self.screen, 'Press enter key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
-        scaled_player2 = pygame.transform.scale(player2, (300, 300))
-        self.screen.blit(scaled_player2, (350,500))
+        bg = pygame.transform.scale(bgWin, (WIDTH, HEIGHT))
+        self.screen.blit(bg,(0,0))
+        tWin = Button(110, 0, textWin)
+        tWin.draw()
+        self.screen.blit(cup, (400,100))
+        drawing_text(self.screen, 'Blue Tank Win', 40, WIDTH / 2, HEIGHT / 3, BLUE,WHITE)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE2) + '-' + str(self.SCORE1) , 30, 500, 340, BLUE,WHITE)
+        drawing_text(self.screen, 'Nhan ENTER de tiep tuc', 20, WIDTH/2, 700, RED,None)
+        # scaled_player2 = pygame.transform.scale(player2, (300, 300))
+        # self.screen.blit(scaled_player2, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
