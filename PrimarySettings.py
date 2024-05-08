@@ -27,8 +27,8 @@ GRIDHEIGHT = HEIGHT / SQSIZE
 
 # player settings
 
-playerSpeed = 200  # in second
-enemySpeed = 200
+playerSpeed = 150  # in second
+enemySpeed = 150
 
 
 PLAYER_IMAGE = 'tank_blue.png'
