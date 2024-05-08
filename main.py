@@ -31,6 +31,9 @@ class Game:
         self.data()
         self.game_over = False
 
+        self.player_has_shield = False  # Cờ hiệu player có shield
+        self.enemy_has_shield = False   # Cờ hiệu enemy có shield
+
     def data(self):
             folder_of_game = path.dirname(__file__)  # location of main.py
             image_folder = path.join(folder_of_game, 'imagefolder')
@@ -55,6 +58,8 @@ class Game:
             self.shoot_sound = pygame.mixer.Sound(path.join(sound_folder, 'shoot.wav'))
             self.explosion_sound = pygame.mixer.Sound(path.join(sound_folder, 'Explosion20.wav'))
             self.explosion_list = []
+            self.shield_image = pygame.image.load(path.join(image_folder, SHIELD_IMAGE)).convert()
+            self.shield_image.set_colorkey(WHITE)
             for j in range(9):
                 picture_name = 'regularExplosion0{}.png'.format(j)
                 self.image_loading_of_explosion = pygame.image.load(path.join(image_folder, picture_name)).convert()
@@ -62,14 +67,13 @@ class Game:
                 self.image = pygame.transform.scale(self.image_loading_of_explosion, (50, 50))
                 self.explosion_list.append(self.image)
             
-            self.shield_image = pygame.image.load(path.join(image_folder, SHIELD_IMAGE)).convert()
-            self.shield_image.set_colorkey(WHITE)
 
 
     def new(self):
         # initializing all variables and setup them for a new game
         self.walls = pygame.sprite.Group()  # created the walls group to hold them all
         self.bullets = pygame.sprite.Group()
+        self.shield = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
         for row, tiles in enumerate(self.maze):
             for col, tile in enumerate(tiles):
@@ -80,7 +84,7 @@ class Game:
                 if tile == '-':
                     self.enemy = Enemy(self, col, row)
                 if tile == '@':
-                    self.shield =  ShieldItem(self, col, row)
+                    ShieldItem(self, col, row)
                     
         self.game_over = False  # Đặt lại trạng thái game
         self.Score = False # reset score 
