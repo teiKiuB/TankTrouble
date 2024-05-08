@@ -27,8 +27,8 @@ GRIDHEIGHT = HEIGHT / SQSIZE
 
 # player settings
 
-playerSpeed = 150  # in second
-enemySpeed = 150
+playerSpeed = 100  # in second
+enemySpeed = 100
 
 
 PLAYER_IMAGE = 'tank_blue.png'
@@ -38,16 +38,16 @@ WALL_IMAGE = 'dirt.png'
 RotationSpeedOfPlayer = 120  # degree in second
 RotationSpeedOfEnemy = 120
 
-player_box = pygame.Rect(0, 0, 25, 28)
-enemy_box = pygame.Rect(0, 0, 25, 28)
-bullet_box = pygame.Rect(0, 0, 15, 15)
+player_box = pygame.Rect(0, 0, 15, 18)
+enemy_box = pygame.Rect(0, 0, 15, 18)
+bullet_box = pygame.Rect(0, 0, 10, 10)
 
 # shooting setting
 BULLET_IMAGE = 'BULLET.png'
 bulletSpeed = 300
 Bullet_life_time = 4000  # 1 second
 bullet_repeating = 300
-bullet_rate = 700  # HOW FAST THE BULLET GET PRODUCED
+bullet_rate = 2000  # HOW FAST THE BULLET GET PRODUCED
 turret = vector(0, 30)
 
 

@@ -77,14 +77,7 @@ class Player(pygame.sprite.Sprite):
         self.hit_rect.centery = self.position.y
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
-        self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
 
-    def collide_with_tanks(self):
-        # Kiểm tra va chạm với các xe tăng khác
-        for tank in self.game.all_sprites:
-            if tank != self and isinstance(tank, Enemy):
-                if collide(self, tank):
-                    self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
 # -----------------------------------------------------------------------------------------------------------------
 
 
@@ -101,6 +94,7 @@ class Explosion(pygame.sprite.Sprite):
         self.frame_rate = 50
 
     def update(self):  # change the image when enough time has gone
+        print(self.game.explosion_list)
         now = pygame.time.get_ticks()
         if now - self.last_time_update > self.frame_rate:
             self.last_time_update = now
@@ -132,7 +126,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.position += self.vel * self.game.changing_time
         self.rect.center = self.position  # update our rectangle to that location
-        if pygame.sprite.spritecollide(self, self.game.walls, False, pygame.sprite.collide_rect):
+        if pygame.sprite.spritecollide(self, self.game.walls, False, False):
             if self.vel.y > 0 and self.vel.x == 0:
                 self.vel *= -1
             elif self.vel.y < 0 and self.vel.x == 0:
@@ -240,11 +234,3 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_rect.centery = self.position.y     # centerize of rectangle to rotate depend on center
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
-        self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-
-    def collide_with_tanks(self):
-        # Kiểm tra va chạm với các xe tăng khác
-        for tank in self.game.all_sprites:
-            if tank != self and isinstance(tank, Player):
-                if collide(self, tank):
-                    self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau

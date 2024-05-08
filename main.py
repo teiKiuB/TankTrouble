@@ -57,9 +57,9 @@ class Game:
 
     def new(self):
         # initializing all variables and setup them for a new game
-        self.all_sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()  # created the walls group to hold them all
         self.bullets = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group()
         for row, tiles in enumerate(self.maze):
             for col, tile in enumerate(tiles):
                 if tile == '1':
@@ -118,39 +118,45 @@ class Game:
         self.all_sprites.update()
         self.hit()
 
-    def hit(self):
 
+
+    def hit(self):
         self.hits1 = pygame.sprite.spritecollide(self.player, self.bullets, True, collide)
-        for hit in self.hits1:
-            if hit:
-                Explosion(self, hit.rect.center)
-                self.explosion_sound.play()
-                self.player.kill()
-                self.SCORE1 += 1
-                self.playing = False
-                pygame.time.delay(1000)
-                self.data()
-                self.new()
-                if self.SCORE1 == 5:
-                    self.show_go_screen1()
+        if self.hits1:
+            Explosion(self, self.player.rect.center)
+            self.explosion_sound.play()
+            self.player.kill()
+            self.SCORE1 += 1
+            self.playing = False
+            self.all_sprites.draw(self.screen)
+            pygame.display.flip()
+            pygame.time.delay(1000)
+            self.new()
+            self.data()
+            
+        if self.SCORE1 == 5:
+            self.show_go_screen1()
+                    
         self.hits2 = pygame.sprite.spritecollide(self.enemy, self.bullets, True, collide)
-        for hit in self.hits2:
-            if hit:
-                Explosion(self, hit.rect.center)  # Create explosion
-                self.explosion_sound.play()
-                self.player.kill()
-                self.SCORE2 += 1
-                self.playing = False
-                pygame.time.delay(1000)
-                self.data()
-                self.new()
-                if self.SCORE2 == 5:
-                    self.show_go_screen2()
+        if self.hits2:
+            Explosion(self, self.enemy.rect.center)
+            self.explosion_sound.play()
+            self.enemy.kill()
+            self.SCORE2 += 1
+            self.playing = False
+            self.all_sprites.draw(self.screen)
+            pygame.display.flip()
+            pygame.time.delay(1000)
+            self.new()
+            self.data()
+            
+        if self.SCORE2 == 5:
+            self.show_go_screen2()
                     
         # Draw all sprites after updating the explosions
         self.all_sprites.draw(self.screen)
         pygame.display.flip()  # Update the display after drawing
-
+ 
     def draw(self):
         # flip all the thing to screen
         self.screen.fill(BGCOLOR)
@@ -196,7 +202,8 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.quit()
                 if event.type == pygame.KEYUP:
-                    key_pressed = True
+                    if event.key == pygame.K_RETURN:  # Only break the loop if 'Enter' is pressed
+                         key_pressed = True
         self.Score = False  # Đặt lại trạng thái chơi game
 
                     
@@ -230,8 +237,7 @@ class Game:
             if btn_start.draw():
                 break  # Thoát khỏi vòng lặp khi nút được nhấn
             elif btn_exit.draw():
-                pygame.quit()
-                quit()  # Exit the game if the exit button is clicked
+                self.quit()
 
    
 class Button():
