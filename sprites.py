@@ -77,6 +77,8 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
+        # Kiểm tra va chạm với item shield
+        self.hit_shield()
 
     def collide_with_tanks(self):
         # Kiểm tra va chạm với các xe tăng khác
@@ -85,6 +87,13 @@ class Player(pygame.sprite.Sprite):
                 if collide(self, tank):
                     self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
 
+    def hit_shield(self):
+        # Kiểm tra va chạm với item shield
+        hits = pygame.sprite.spritecollide(self, self.game.shield, True)
+        if hits:
+            self.game.player_has_shield = True  # Đặt cờ hiệu player đã có shield
+            # Xử lý khi player ăn item shield
+            # Đặc tả hành động cần thực hiện khi player ăn item shield
 
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -243,7 +252,9 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.center = self.hit_rect.center
 
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-
+        # Kiểm tra va chạm với item shield
+        self.hit_shield()
+        
     def collide_with_tanks(self):
         # Kiểm tra va chạm với các xe tăng khác
         for tank in self.game.all_sprites:
@@ -251,6 +262,13 @@ class Enemy(pygame.sprite.Sprite):
                 if collide(self, tank):
                     self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
 
+    def hit_shield(self):
+        # Kiểm tra va chạm với item shield
+        hits = pygame.sprite.spritecollide(self, self.game.shield, True)
+        if hits:
+            self.game.enemy_has_shield = True  # Đặt cờ hiệu enemy đã có shield
+            # Xử lý khi enemy ăn item shield
+            # Đặc tả hành động cần thực hiện khi enemy ăn item shield
 # -----------------------------------------------------------------------------------------------------------------
 class ShieldItem(pygame.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -259,7 +277,7 @@ class ShieldItem(pygame.sprite.Sprite):
         self.game = game
         self.image = game.shield_image
         self.rect = self.image.get_rect()
-        self.hit_rect = pygame.Rect(0, 0, 16, 16)  # Kích thước hit box cho shield
-        self.hit_rect.center = self.rect.center
-        self.position = vector(x, y) * SQSIZE
-
+        self.x = x
+        self.y = y
+        self.rect.x = x * SQSIZE
+        self.rect.y = y * SQSIZE
