@@ -16,6 +16,8 @@ player2 = pygame.image.load('imagefolder/tank_blue.png').convert_alpha()
 shield = pygame.image.load('imagefolder/tank-shield.png').convert_alpha()
 bgWin = pygame.image.load('imagefolder/bgWin.png').convert_alpha()
 textWin = pygame.image.load('imagefolder/textWin.png').convert_alpha()
+btnSoundOn = pygame.image.load('imagefolder/sound-on.png').convert_alpha()
+btnSoundOff = pygame.image.load('imagefolder/sound-off.png').convert_alpha()
 
 class Game:
 
@@ -30,9 +32,11 @@ class Game:
         self.last_maze_no = 0
         self.data()
         self.game_over = False
-
         self.player_has_shield = False  # Cờ hiệu player có shield
         self.enemy_has_shield = False   # Cờ hiệu enemy có shield
+        self.sound_on = True
+        pygame.mixer.music.load('snd/background_music.mp3')  # tải file nhạc
+        pygame.mixer.music.play(-1)  # phát nhạc (lặp đi lặp lại với -1)
 
     def data(self):
             folder_of_game = path.dirname(__file__)  # location of main.py
@@ -246,52 +250,69 @@ class Game:
         btn_exit = Button(470, 450, btnExit)
         btn_exit.draw()
         
+        btn_sound = Button(0, 0, btnSoundOn, btnSoundOff, True, game=self)
+        btn_sound.draw()
+    
         pygame.display.flip()
-        pygame.display.update()
 
-        # Chờ người dùng nhấn nút "btnStart"
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.quit()
                 if event.type == pygame.KEYUP:
                     self.Score = False
-                    break  # Thoát khỏi vòng lặp
+                    break  
 
+            if btn_sound.draw():
+                self.sound_on = not self.sound_on
+                if self.sound_on:
+                    pygame.mixer.music.play(-1)
+                else:
+                    pygame.mixer.music.stop()
+                    
             # Kiểm tra xem nút đã được nhấn chưa
             if btn_start.draw():
                 break  # Thoát khỏi vòng lặp khi nút được nhấn
             elif btn_exit.draw():
                 self.quit()
+                
+            pygame.display.flip()
 
    
 class Button():
-    def __init__(self, x, y, image):
-        self.image = image
-        self.rect = self.image.get_rect()
+    def __init__(self, x, y, image_on, image_off = None, is_sound_button = False, game = None):
+        self.image_on = image_on
+        self.image_off = image_off
+        self.rect = self.image_on.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.clicked = False
+        self.is_sound_button = is_sound_button
+        if self.is_sound_button:
+            self.game = game
 
     def draw(self):
         action = False
-
-        # Lấy vị trí của chuột
         pos = pygame.mouse.get_pos()
 
-        # Kiểm tra xem chuột có nằm trên nút không và có nhấn chuột trái không
+       # Kiểm tra trạng thái âm thanh nếu là nút âm thanh
+        if self.is_sound_button:
+            if self.game.sound_on:
+                self.image = self.image_on
+            else:
+                self.image = self.image_off
+        elif self.image_off is None:
+            self.image = self.image_on
+
         if self.rect.collidepoint(pos):
             if pygame.mouse.get_pressed()[0] == 1 and not self.clicked:
                 action = True
                 self.clicked = True
 
-        # Reset trạng thái của nút khi không có chuột được nhấn
         if pygame.mouse.get_pressed()[0] == 0:
             self.clicked = False
-
-        # Vẽ nút
+        
         screen.blit(self.image, self.rect)
-
         return action
 
 # create game objects
