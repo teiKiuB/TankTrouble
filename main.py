@@ -43,8 +43,26 @@ class Game:
         self.player_has_shield = False  # Cờ hiệu player có shield
         self.enemy_has_shield = False   # Cờ hiệu enemy có shield
         self.sound_on = True
+        self.player_connected = 0
         pygame.mixer.music.load('snd/background_music.mp3')  # tải file nhạc
         pygame.mixer.music.play(-1)  # phát nhạc (lặp đi lặp lại với -1)
+
+    def create_thread(target):
+        t = threading.Thread(target = target) #argument - target function
+        t.daemon = True
+        t.start()
+        print("Created thread")
+    
+    def receive_msg():
+        global msg
+        while True:
+            try:
+                recvData = s.recv(2048 * 10)
+                msg = recvData.decode()
+                print("Receive form:", msg)
+            except socket.error as e:
+                print("Socket connection error:", e)
+                break
 
     def data(self):
             folder_of_game = path.dirname(__file__)  # location of main.py
@@ -279,13 +297,14 @@ class Game:
                     pygame.mixer.music.stop()
                     
             # Kiểm tra xem nút đã được nhấn chưa
-            if btn_start.draw():
+            if int(msg) == 2 and btn_start.draw():
                 break  # Thoát khỏi vòng lặp khi nút được nhấn
             elif btn_exit.draw():
                 self.quit()
                 
             pygame.display.flip()
-
+            
+    create_thread(receive_msg)
    
 class Button():
     def __init__(self, x, y, image_on, image_off = None, is_sound_button = False, game = None):

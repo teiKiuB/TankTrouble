@@ -33,8 +33,7 @@ def accept_players():
         for i in range(2):
             conn, addr = s.accept()
             msg = "<<< You are player {} >>>".format(i+1)
-            conn.send(msg.encode())
-
+            conn.send(str(i+1).encode())
             playerConn.append(conn)
             playerAddr.append(addr)
             print("Player {} - [{}:{}]".format(i+1, addr[0], str(addr[1])))
