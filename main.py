@@ -3,7 +3,15 @@ from PrimarySettings import *
 from sprites import *
 from os import path
 import random
+import socket
+import threading
+
 pygame.init()  
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = "192.168.1.45"
+port = 5555
+s.connect((host, port))
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 bgStart = pygame.image.load('imagefolder/bgS.png').convert_alpha()
@@ -84,11 +92,11 @@ class Game:
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == '*':
-                    self.player = Player(self, col, row)
+                    self.player = Player(s,self, col, row)
                 if tile == '-':
-                    self.enemy = Enemy(self, col, row)
-                if tile == '@':
-                    ShieldItem(self, col, row)
+                    self.enemy = Enemy(s,self, col, row)
+                # if tile == '@':
+                #     ShieldItem(self, col, row)
                     
         self.game_over = False  # Đặt lại trạng thái game
         self.Score = False # reset score 

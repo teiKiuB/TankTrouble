@@ -1,12 +1,15 @@
 import pygame
 from PrimarySettings import *
 import random
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 vector = pygame.math.Vector2
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self,socket, game, x, y):
         self.groups = game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -18,23 +21,32 @@ class Player(pygame.sprite.Sprite):
         self.position = vector(x, y) * SQSIZE
         self.rot = 0  # degree
         self.last_fire = 0
-
+        self.socket = socket
         self.has_shield = False  # Flag to track if the player has a shield
         self.shield_radius =25  # Radius of the shield
 
     def keys(self):
         # get key for velocity every frame
+        data = None
         self.rotation_speed = 0  # not rotating
         self.vel = vector(0, 0)
         keys_state = pygame.key.get_pressed()
         if keys_state[pygame.K_LEFT]:
             self.rotation_speed = +RotationSpeedOfPlayer
+            data = "LEFT" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_RIGHT]:
             self.rotation_speed = -RotationSpeedOfPlayer
+            data = "RIGHT" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_UP]:
             self.vel = vector(0, playerSpeed).rotate(-self.rot)
+            data = "UP" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_DOWN]:
             self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
+            data = "DOWN" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_m]:
             now = pygame.time.get_ticks()
             if now - self.last_fire > bullet_rate:
@@ -43,7 +55,9 @@ class Player(pygame.sprite.Sprite):
                 position = self.position + turret.rotate(-self.rot)
                 Bullet(self.game, position, direction)
                 self.game.shoot_sound.play()
-
+        if data:
+            self.socket.sendall(data.encode('utf-8'))
+        
     def collide_with_walls(self, direction):
         if direction == 'x_direction':
             hits = pygame.sprite.spritecollide(self, self.game.walls, False, collide)
@@ -181,7 +195,7 @@ class Wall(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
+    def __init__(self,socket, game, x, y):
         self.groups = game.all_sprites                     # ???????????
         pygame.sprite.Sprite.__init__(self, self.groups)    # ???????????
         self.game = game                                    # ???????????
@@ -193,20 +207,29 @@ class Enemy(pygame.sprite.Sprite):
         self.position = vector(x, y) * SQSIZE
         self.rot = 0  # degree
         self.last_fire = 0
-
+        self.socket = socket
     def keys(self):
         # get key for velocity every frame
+        data = None  # Initialize data
         self.rotation_speed = 0  # not rotating
         self.vel = vector(0, 0)
         keys_state = pygame.key.get_pressed()
         if keys_state[pygame.K_a]:
             self.rotation_speed = +RotationSpeedOfEnemy
+            data = "LEFT" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_d]:
             self.rotation_speed = -RotationSpeedOfEnemy
+            data = "RIGHT" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_w]:
             self.vel = vector(0, enemySpeed).rotate(-self.rot)
+            data = "UP" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_s]:
             self.vel = vector(0, -enemySpeed/2).rotate(-self.rot)
+            data = "DOWN" + str(self.rotation_speed)
+            print(data)
         if keys_state[pygame.K_q]:
             now = pygame.time.get_ticks()
             if now - self.last_fire > bullet_rate:
@@ -215,7 +238,8 @@ class Enemy(pygame.sprite.Sprite):
                 position = self.position + turret.rotate(-self.rot)
                 Bullet(self.game, position, direction)
                 self.game.shoot_sound.play()
-
+        if data:  # Check if data is not None
+            self.socket.sendall(data.encode('utf-8'))
     def collide_with_walls(self, direction):
         if direction == 'x_direction':
             hits = pygame.sprite.spritecollide(self, self.game.walls, False, collide)
@@ -266,25 +290,25 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_rect.inflate_ip(50, 50)  # Increase width and height by 50 pixels
 
 # -----------------------------------------------------------------------------------------------------------------
-class ShieldItem(pygame.sprite.Sprite):
-    def __init__(self, game, x, y):
-        self.groups = game.all_sprites
-        pygame.sprite.Sprite.__init__(self, self.groups)
-        self.game = game
-        self.image = game.shield_image
-        self.rect = self.image.get_rect()
-        self.rect.x = x * SQSIZE
-        self.rect.y = y * SQSIZE
+# class ShieldItem(pygame.sprite.Sprite):
+#     def __init__(self, game, x, y):
+#         self.groups = game.all_sprites
+#         pygame.sprite.Sprite.__init__(self, self.groups)
+#         self.game = game
+#         self.image = game.shield_image
+#         self.rect = self.image.get_rect()
+#         self.rect.x = x * SQSIZE
+#         self.rect.y = y * SQSIZE
 
 
-    def update(self):
-        # Check collision with player
-        if pygame.sprite.collide_rect(self, self.game.player):
-            self.kill()
-            self.game.player.get_shield()
+#     def update(self):
+#         # Check collision with player
+#         if pygame.sprite.collide_rect(self, self.game.player):
+#             self.kill()
+#             self.game.player.get_shield()
 
-        # Check collision with enemy
-        if pygame.sprite.collide_rect(self, self.game.enemy):
-            self.kill()
-            self.game.enemy.get_shield()
+#         # Check collision with enemy
+#         if pygame.sprite.collide_rect(self, self.game.enemy):
+#             self.kill()
+#             self.game.enemy.get_shield()
 
