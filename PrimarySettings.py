@@ -2,8 +2,11 @@ from os import path
 import pygame
 vector = pygame.math.Vector2
 
-# define colors based on  (R, G, B)
+#server
+HOST = "192.168.1.18"
+PORT = 5555
 
+# define colors based on  (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 DARKGREY = (40, 40, 40)

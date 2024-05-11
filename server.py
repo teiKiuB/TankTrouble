@@ -1,9 +1,8 @@
 import socket
 import threading
+from PrimarySettings import *
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "192.168.1.5"
-port = 5555
 
 playerOne = 1
 playerTwo = 2
@@ -17,8 +16,8 @@ def start_server():
     #Binding to port 9999
     #Only two clients can connect 
     try:
-        s.bind((host, port))
-        print("PVP tank server started \nBinding to port", port)
+        s.bind((HOST, PORT))
+        print("PVP tank server started \nBinding to port", PORT)
         s.listen(2) 
         accept_players()
     except socket.error as e:

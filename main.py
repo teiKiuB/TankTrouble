@@ -9,9 +9,8 @@ import threading
 pygame.init()  
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "192.168.1.5"
-port = 5555
-s.connect((host, port))
+
+s.connect((HOST, PORT))
 
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 bgStart = pygame.image.load('imagefolder/bgS.png').convert_alpha()
@@ -73,8 +72,7 @@ class Game:
             Mazefolder = path.join(folder_of_game, 'MAZEFOLDER')
             sound_folder = path.join(folder_of_game, 'snd')
             self.maze = []
-            i = random.randint(1, 10)
-            with open(path.join(Mazefolder, 'MAZE{}.txt'.format(i)), 'rt') as f:
+            with open(path.join(Mazefolder, 'MAZE1.txt'), 'rt') as f:
                 for line in f:
                     self.maze.append(line)
             self.player_image = pygame.image.load(path.join(image_folder, PLAYER_IMAGE)).convert()
@@ -376,7 +374,7 @@ class Button():
 g = Game()
 while True:
     g.menu()
-    g.waiting_screen()
+    # g.waiting_screen()
     g.new()
     g.run()
     if not g.Score:  # Nếu người chơi đã kết thúc màn chơi

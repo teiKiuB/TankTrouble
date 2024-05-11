@@ -33,19 +33,19 @@ class Player(pygame.sprite.Sprite):
         keys_state = pygame.key.get_pressed()
         if keys_state[pygame.K_LEFT]:
             self.rotation_speed = +RotationSpeedOfPlayer
-            data = "LEFT" + str(self.rotation_speed)
+            data = "LEFT"
             print(data)
         if keys_state[pygame.K_RIGHT]:
             self.rotation_speed = -RotationSpeedOfPlayer
-            data = "RIGHT" + str(self.rotation_speed)
+            data = "RIGHT"
             print(data)
         if keys_state[pygame.K_UP]:
             self.vel = vector(0, playerSpeed).rotate(-self.rot)
-            data = "UP" + str(self.rotation_speed)
+            data = "UP"
             print(data)
         if keys_state[pygame.K_DOWN]:
             self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
-            data = "DOWN" + str(self.rotation_speed)
+            data = "DOWN"
             print(data)
         if keys_state[pygame.K_m]:
             now = pygame.time.get_ticks()
@@ -58,6 +58,34 @@ class Player(pygame.sprite.Sprite):
         if data:
             self.socket.sendall(data.encode('utf-8'))
         
+    def handle_server_data(self):
+        # get key for velocity every frame
+        recvData = s.recv(2048 * 10)
+        data = recvData.decode()
+        self.rotation_speed = 0  # not rotating
+        self.vel = vector(0, 0)
+        keys_state = pygame.key.get_pressed()
+        if data == "LEFT":
+            self.rotation_speed = +RotationSpeedOfPlayer
+         
+        if data == "RIGHT":
+            self.rotation_speed = -RotationSpeedOfPlayer
+          
+        if data == "UP":
+            self.vel = vector(0, playerSpeed).rotate(-self.rot)
+        
+        if data == "DOWN":
+            self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
+           
+        if keys_state[pygame.K_m]:
+            now = pygame.time.get_ticks()
+            if now - self.last_fire > bullet_rate:
+                self.last_fire = now
+                direction = vector(0, 1).rotate(-self.rot)
+                position = self.position + turret.rotate(-self.rot)
+                Bullet(self.game, position, direction)
+                self.game.shoot_sound.play()
+                
     def collide_with_walls(self, direction):
         if direction == 'x_direction':
             hits = pygame.sprite.spritecollide(self, self.game.walls, False, collide)
@@ -231,19 +259,19 @@ class Enemy(pygame.sprite.Sprite):
         keys_state = pygame.key.get_pressed()
         if keys_state[pygame.K_a]:
             self.rotation_speed = +RotationSpeedOfEnemy
-            data = "LEFT" + str(self.rotation_speed)
+            data = "LEFT"
             print(data)
         if keys_state[pygame.K_d]:
             self.rotation_speed = -RotationSpeedOfEnemy
-            data = "RIGHT" + str(self.rotation_speed)
+            data = "RIGHT"
             print(data)
         if keys_state[pygame.K_w]:
             self.vel = vector(0, enemySpeed).rotate(-self.rot)
-            data = "UP" + str(self.rotation_speed)
+            data = "UP"
             print(data)
         if keys_state[pygame.K_s]:
             self.vel = vector(0, -enemySpeed/2).rotate(-self.rot)
-            data = "DOWN" + str(self.rotation_speed)
+            data = "DOWN"
             print(data)
         if keys_state[pygame.K_q]:
             now = pygame.time.get_ticks()
@@ -255,6 +283,35 @@ class Enemy(pygame.sprite.Sprite):
                 self.game.shoot_sound.play()
         if data:  # Check if data is not None
             self.socket.sendall(data.encode('utf-8'))
+            
+    def handle_server_data(self):
+        # get key for velocity every frame
+        recvData = s.recv(2048 * 10)
+        data = recvData.decode()
+        self.rotation_speed = 0  # not rotating
+        self.vel = vector(0, 0)
+        keys_state = pygame.key.get_pressed()
+        if data == "LEFT":
+            self.rotation_speed = +RotationSpeedOfPlayer
+         
+        if data == "RIGHT":
+            self.rotation_speed = -RotationSpeedOfPlayer
+          
+        if data == "UP":
+            self.vel = vector(0, playerSpeed).rotate(-self.rot)
+        
+        if data == "DOWN":
+            self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
+           
+        if keys_state[pygame.K_m]:
+            now = pygame.time.get_ticks()
+            if now - self.last_fire > bullet_rate:
+                self.last_fire = now
+                direction = vector(0, 1).rotate(-self.rot)
+                position = self.position + turret.rotate(-self.rot)
+                Bullet(self.game, position, direction)
+                self.game.shoot_sound.play()
+                
     def collide_with_walls(self, direction):
         if direction == 'x_direction':
             hits = pygame.sprite.spritecollide(self, self.game.walls, False, collide)
