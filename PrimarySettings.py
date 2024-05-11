@@ -34,14 +34,16 @@ enemySpeed = 100
 PLAYER_IMAGE = 'tank_blue.png'
 ENEMY_IMAGE = 'tank_green.png'
 WALL_IMAGE = 'dirt.png'
-SHIELD_IMAGE = 'tank-shield.png'
+SHIELD_ITEM_IMAGE = 'tank-shield.png'
+SHIELD_IMAGE = 'tank-shield-circle.png'
 
 RotationSpeedOfPlayer = 120  # degree in second
 RotationSpeedOfEnemy = 120
 
-player_box = pygame.Rect(0, 0, 16, 16)
-enemy_box = pygame.Rect(0, 0, 16, 16)
+player_box = pygame.Rect(0, 0, 30, 30)
+enemy_box = pygame.Rect(0, 0, 30, 30)
 bullet_box = pygame.Rect(0, 0, 15, 15)
+shield_box = pygame.Rect(0, 0, 80, 80)
 
 
 # shooting setting

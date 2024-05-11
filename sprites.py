@@ -23,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.last_fire = 0
         self.socket = socket
         self.has_shield = False  # Flag to track if the player has a shield
-        self.shield_radius =25  # Radius of the shield
+        self.shield_sprite = None  # Thêm thuộc tính shield_sprite
 
     def keys(self):
         # get key for velocity every frame
@@ -94,10 +94,11 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-        
+
         if self.has_shield:
-            # Draw shield around the tank
-            pygame.draw.circle(self.game.screen, RED, self.rect.center, self.shield_radius, 2)  # Change GREEN to the color you want
+            self.draw_shield()
+            self.shield_sprite.update()  # Cập nhật vị trí của Shield
+            
 
     def collide_with_tanks(self):
         # Kiểm tra va chạm với các xe tăng khác
@@ -107,8 +108,18 @@ class Player(pygame.sprite.Sprite):
                     self.position -= self.vel * self.game.changing_time  # Đảo ngược di chuyển để tránh xuyên qua nhau
 
     def get_shield(self):
-        # Activate shield
+        # Kích hoạt khiêng
         self.has_shield = True
+        
+    def draw_shield(self):
+        # Kích hoạt khiên
+        self.has_shield = True
+        if self.shield_sprite is None:  # Only create shield_sprite if it doesn't exist
+            self.shield_sprite = Shield(self.game, self)
+            self.game.all_sprites.add(self.shield_sprite)
+        
+        if self.shield_sprite:  # Kiểm tra xem shield_sprite đã được tạo chưa
+            self.shield_sprite.draw(self.game.screen)
 
 # -----------------------------------------------------------------------------------------------------------------
 
@@ -158,6 +169,8 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.position += self.vel * self.game.changing_time
         self.rect.center = self.position  # update our rectangle to that location
+
+        
         if pygame.sprite.spritecollide(self, self.game.walls, False):
             if self.vel.y > 0 and self.vel.x == 0:
                 self.vel *= -1
@@ -191,6 +204,8 @@ class Wall(pygame.sprite.Sprite):
         self.y = y
         self.rect.x = x * SQSIZE
         self.rect.y = y * SQSIZE
+
+    
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -290,25 +305,4 @@ class Enemy(pygame.sprite.Sprite):
         self.hit_rect.inflate_ip(50, 50)  # Increase width and height by 50 pixels
 
 # -----------------------------------------------------------------------------------------------------------------
-# class ShieldItem(pygame.sprite.Sprite):
-#     def __init__(self, game, x, y):
-#         self.groups = game.all_sprites
-#         pygame.sprite.Sprite.__init__(self, self.groups)
-#         self.game = game
-#         self.image = game.shield_image
-#         self.rect = self.image.get_rect()
-#         self.rect.x = x * SQSIZE
-#         self.rect.y = y * SQSIZE
-
-
-#     def update(self):
-#         # Check collision with player
-#         if pygame.sprite.collide_rect(self, self.game.player):
-#             self.kill()
-#             self.game.player.get_shield()
-
-#         # Check collision with enemy
-#         if pygame.sprite.collide_rect(self, self.game.enemy):
-#             self.kill()
-#             self.game.enemy.get_shield()
 

@@ -2,7 +2,7 @@ import socket
 import threading
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "192.168.1.45"
+host = "192.168.1.5"
 port = 5555
 
 playerOne = 1
@@ -21,7 +21,6 @@ def start_server():
         print("PVP tank server started \nBinding to port", port)
         s.listen(2) 
         accept_players()
-        handle_client()
     except socket.error as e:
         print("Server binding error:", e)
     
@@ -34,6 +33,7 @@ def accept_players():
             conn, addr = s.accept()
             msg = "<<< You are player {} >>>".format(i+1)
             conn.send(str(i+1).encode())
+
             playerConn.append(conn)
             playerAddr.append(addr)
             print("Player {} - [{}:{}]".format(i+1, addr[0], str(addr[1])))

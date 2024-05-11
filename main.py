@@ -9,7 +9,7 @@ import threading
 pygame.init()  
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = "192.168.1.45"
+host = "192.168.1.5"
 port = 5555
 s.connect((host, port))
 
@@ -21,11 +21,11 @@ btnExit = pygame.image.load('imagefolder/btnExit.png').convert_alpha()
 cup = pygame.image.load('imagefolder/cup.png').convert_alpha()
 player1 = pygame.image.load('imagefolder/tank_green.png').convert_alpha()
 player2 = pygame.image.load('imagefolder/tank_blue.png').convert_alpha()
-shield = pygame.image.load('imagefolder/tank-shield.png').convert_alpha()
 bgWin = pygame.image.load('imagefolder/bgWin.png').convert_alpha()
 textWin = pygame.image.load('imagefolder/textWin.png').convert_alpha()
 btnSoundOn = pygame.image.load('imagefolder/sound-on.png').convert_alpha()
 btnSoundOff = pygame.image.load('imagefolder/sound-off.png').convert_alpha()
+
 
 class Game:
 
@@ -37,15 +37,15 @@ class Game:
         pygame.display.set_caption(TITLE)
         self.SCORE1 = 0
         self.SCORE2 = 0
-        self.last_maze_no = 0
         self.data()
         self.game_over = False
-        self.player_has_shield = False  # Cờ hiệu player có shield
-        self.enemy_has_shield = False   # Cờ hiệu enemy có shield
         self.sound_on = True
         self.player_connected = 0
         pygame.mixer.music.load('snd/background_music.mp3')  # tải file nhạc
         pygame.mixer.music.play(-1)  # phát nhạc (lặp đi lặp lại với -1)
+
+        self.font = pygame.font.SysFont(None, 30)  # Use default system font with size 30
+        self.player1_ready = False
 
     def create_thread(target):
         t = threading.Thread(target = target) #argument - target function
@@ -64,17 +64,16 @@ class Game:
                 print("Socket connection error:", e)
                 break
 
+        
+
+
     def data(self):
             folder_of_game = path.dirname(__file__)  # location of main.py
             image_folder = path.join(folder_of_game, 'imagefolder')
             Mazefolder = path.join(folder_of_game, 'MAZEFOLDER')
             sound_folder = path.join(folder_of_game, 'snd')
             self.maze = []
-            if hasattr(self, 'last_maze_no'):
-                i = random.choice([j for j in range(1, 11) if j != self.last_maze_no])
-            else:
-                i = random.randint(1, 10)
-            self.last_maze_no = i
+            i = random.randint(1, 10)
             with open(path.join(Mazefolder, 'MAZE{}.txt'.format(i)), 'rt') as f:
                 for line in f:
                     self.maze.append(line)
@@ -88,8 +87,7 @@ class Game:
             self.shoot_sound = pygame.mixer.Sound(path.join(sound_folder, 'shoot.wav'))
             self.explosion_sound = pygame.mixer.Sound(path.join(sound_folder, 'Explosion20.wav'))
             self.explosion_list = []
-            self.shield_image = pygame.image.load(path.join(image_folder, SHIELD_IMAGE)).convert()
-            self.shield_image.set_colorkey(WHITE)
+            
             for j in range(9):
                 picture_name = 'regularExplosion0{}.png'.format(j)
                 self.image_loading_of_explosion = pygame.image.load(path.join(image_folder, picture_name)).convert()
@@ -103,7 +101,7 @@ class Game:
         # initializing all variables and setup them for a new game
         self.walls = pygame.sprite.Group()  # created the walls group to hold them all
         self.bullets = pygame.sprite.Group()
-        self.shield = pygame.sprite.Group()
+        self.shields = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
         for row, tiles in enumerate(self.maze):
             for col, tile in enumerate(tiles):
@@ -177,8 +175,8 @@ class Game:
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
             pygame.time.delay(1000)
-            self.data()
             self.new()
+            self.data()
             
         if self.SCORE1 == 5:
             self.show_go_screen1()
@@ -193,8 +191,8 @@ class Game:
             self.all_sprites.draw(self.screen)
             pygame.display.flip()
             pygame.time.delay(1000)
-            self.data()
             self.new()
+            self.data()
             
         if self.SCORE2 == 5:
             self.show_go_screen2()
@@ -208,10 +206,11 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.grid()
         self.all_sprites.draw(self.screen)
+        # kietbui
         # item_rect = self.threebullet.get_rect(center=self.screen.get_rect().center)
         # self.screen.blit(self.threebullet, item_rect)
-        drawing_text(self.screen, str(self.SCORE1) + ':Green Tank', 25, 150, 710, GREEN,None)
-        drawing_text(self.screen, 'Blue Tank:' + str(self.SCORE2), 25, 900, 710, BLUE,None)
+        drawing_text(self.screen, str(self.SCORE1) + ':Green Tank', 25, 150, 710, GREEN)
+        drawing_text(self.screen, 'Blue Tank:' + str(self.SCORE2), 25, 900, 710, BLUE)
         pygame.display.flip()
 
     def quit(self):
@@ -219,31 +218,24 @@ class Game:
         quit()
 
     def show_go_screen1(self):
-        bg = pygame.transform.scale(bgWin, (WIDTH, HEIGHT))
-        self.screen.blit(bg,(0,0))
-        tWin = Button(110, 0, textWin)
-        tWin.draw()
-        self.screen.blit(cup, (400,100))
-        drawing_text(self.screen, 'Green Tank Win', 40, WIDTH / 2, HEIGHT / 3, GREEN,WHITE)
-        drawing_text(self.screen, 'SCORE:' + str(self.SCORE1) + '-' + str(self.SCORE2), 40, 500,  340, GREEN,WHITE)
-        drawing_text(self.screen, 'Nhan ENTER de tiep tuc', 20, WIDTH/2 , 700 , RED,None)
-        # scaled_player1 = pygame.transform.scale(player1, (300, 300))
-        # self.screen.blit(scaled_player1, (350,500))
+        self.screen.fill(BROWN)
+        self.screen.blit(cup, (400,0))
+        drawing_text(self.screen, 'Green Tank Win', 80, WIDTH / 2, HEIGHT / 3, GREEN)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE1) + '-' + str(self.SCORE2), 40, WIDTH / 2,  340, GREEN)
+        drawing_text(self.screen, 'Press enter key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        scaled_player1 = pygame.transform.scale(player1, (300, 300))
+        self.screen.blit(scaled_player1, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
-        
     def show_go_screen2(self):
-        bg = pygame.transform.scale(bgWin, (WIDTH, HEIGHT))
-        self.screen.blit(bg,(0,0))
-        tWin = Button(110, 0, textWin)
-        tWin.draw()
-        self.screen.blit(cup, (400,100))
-        drawing_text(self.screen, 'Blue Tank Win', 40, WIDTH / 2, HEIGHT / 3, BLUE,WHITE)
-        drawing_text(self.screen, 'SCORE:' + str(self.SCORE2) + '-' + str(self.SCORE1) , 30, 500, 340, BLUE,WHITE)
-        drawing_text(self.screen, 'Nhan ENTER de tiep tuc', 20, WIDTH/2, 700, RED,None)
-        # scaled_player2 = pygame.transform.scale(player2, (300, 300))
-        # self.screen.blit(scaled_player2, (350,500))
+        self.screen.fill(BROWN)
+        self.screen.blit(cup, (400,0))
+        drawing_text(self.screen, 'Blue Tank Win', 80, WIDTH / 2, HEIGHT / 3, BLUE)
+        drawing_text(self.screen, 'SCORE:' + str(self.SCORE2) + '-' + str(self.SCORE1) , 40, WIDTH / 2, 340, BLUE)
+        drawing_text(self.screen, 'Press enter key to begin or escape key to quit', 40, WIDTH / 2, HEIGHT / 2, WHITE)
+        scaled_player2 = pygame.transform.scale(player2, (300, 300))
+        self.screen.blit(scaled_player2, (350,500))
         pygame.display.flip()
         self.wait_for_key()
         self.game_over = True
@@ -297,7 +289,7 @@ class Game:
                     pygame.mixer.music.stop()
                     
             # Kiểm tra xem nút đã được nhấn chưa
-            if int(msg) == 2 and btn_start.draw():
+            if btn_start.draw():
                 break  # Thoát khỏi vòng lặp khi nút được nhấn
             elif btn_exit.draw():
                 self.quit()
@@ -305,7 +297,45 @@ class Game:
             pygame.display.flip()
             
     create_thread(receive_msg)
-   
+
+    #kietbui
+    def waiting_screen(self):
+        scaler_bg = pygame.transform.scale(bgStart, (WIDTH, HEIGHT))
+        self.screen.blit(scaler_bg, (0, 0))
+        
+        name_game = Button(100, 30, nameGame)
+        name_game.draw()
+        
+        # Hiển thị tiêu đề "Player 1" và "Player 2"
+        player1_label = self.font.render("Player 1", True, (255, 255, 255))
+        player2_label = self.font.render("Player 2", True, (255, 255, 255))
+        self.screen.blit(player1_label, (250, 400))
+        self.screen.blit(player2_label, (600, 400))
+        # Kiểm tra xem Player 1 đã sẵn sàng chưa và hiển thị tương ứng
+        if msg == "1" or msg == "2":
+            ready_label = self.font.render("Player 1 Ready", True, (0, 255, 0))
+        else:
+            ready_label = self.font.render("Player 1 Not Ready", True, (255, 0, 0))
+        self.screen.blit(ready_label, (250, 430))  # Đặt chữ "Ready" dưới Player 1
+
+        if msg == "2":
+            ready_label = self.font.render("Player 2 Ready", True, (0, 255, 0))
+        else:
+            ready_label = self.font.render("Player 2 Not Ready", True, (255, 0, 0))
+        pygame.display.flip()
+        self.screen.blit(ready_label, (650, 430))  # Đặt chữ "Ready" dưới Player 1
+
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+
+            pygame.display.flip()
+
+ 
+               
 class Button():
     def __init__(self, x, y, image_on, image_off = None, is_sound_button = False, game = None):
         self.image_on = image_on
@@ -346,6 +376,7 @@ class Button():
 g = Game()
 while True:
     g.menu()
+    g.waiting_screen()
     g.new()
     g.run()
     if not g.Score:  # Nếu người chơi đã kết thúc màn chơi
