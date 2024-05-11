@@ -2,14 +2,14 @@ import pygame
 from PrimarySettings import *
 import random
 import socket
+import threading
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 vector = pygame.math.Vector2
 
-
 class Player(pygame.sprite.Sprite):
-    def __init__(self,socket, game, x, y):
+    def __init__(self,socket, game, x, y,msg):
         self.groups = game.all_sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.game = game
@@ -24,28 +24,37 @@ class Player(pygame.sprite.Sprite):
         self.socket = socket
         self.has_shield = False  # Flag to track if the player has a shield
         self.shield_sprite = None  # Thêm thuộc tính shield_sprite
-
+        self.thread = threading.Thread(target=self.receive_data)
+        self.thread.start()
+        self.msg = msg  # Save the msg from main
+        
+    def receive_data(self):
+        while True:
+            data = self.socket.recv(1024).decode('utf-8')  # Receive data from the server
+            self.handle_server_data(data)  # Handle the received data
+            
     def keys(self):
         # get key for velocity every frame
         data = None
         self.rotation_speed = 0  # not rotating
         self.vel = vector(0, 0)
         keys_state = pygame.key.get_pressed()
+
         if keys_state[pygame.K_LEFT]:
             self.rotation_speed = +RotationSpeedOfPlayer
-            data = "LEFT"
+            data = "P1LEFT"
             print(data)
         if keys_state[pygame.K_RIGHT]:
             self.rotation_speed = -RotationSpeedOfPlayer
-            data = "RIGHT"
+            data = "P1RIGHT"
             print(data)
         if keys_state[pygame.K_UP]:
             self.vel = vector(0, playerSpeed).rotate(-self.rot)
-            data = "UP"
+            data = "P1UP"
             print(data)
         if keys_state[pygame.K_DOWN]:
             self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
-            data = "DOWN"
+            data = "P1DOWN"
             print(data)
         if keys_state[pygame.K_m]:
             now = pygame.time.get_ticks()
@@ -58,25 +67,27 @@ class Player(pygame.sprite.Sprite):
         if data:
             self.socket.sendall(data.encode('utf-8'))
         
-    def handle_server_data(self):
-        # get key for velocity every frame
-        recvData = s.recv(2048 * 10)
-        data = recvData.decode()
+    def handle_server_data(self,data):
         self.rotation_speed = 0  # not rotating
         self.vel = vector(0, 0)
         keys_state = pygame.key.get_pressed()
-        if data == "LEFT":
+        print("da chay:",data)
+        if data == "P1LEFT":
             self.rotation_speed = +RotationSpeedOfPlayer
-         
-        if data == "RIGHT":
-            self.rotation_speed = -RotationSpeedOfPlayer
-          
-        if data == "UP":
-            self.vel = vector(0, playerSpeed).rotate(-self.rot)
+            print("zo ê eee ê")
         
-        if data == "DOWN":
+        if data == "P1RIGHT":
+            self.rotation_speed = -RotationSpeedOfPlayer
+            print("zo ê eee ê")
+        
+        if data == "P1UP":
+            self.vel = vector(0, playerSpeed).rotate(-self.rot)
+            print("zo ê eee ê")
+        
+        if data == "P1DOWN":
             self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
-           
+            print("zo ê eee ê")
+            
         if keys_state[pygame.K_m]:
             now = pygame.time.get_ticks()
             if now - self.last_fire > bullet_rate:
@@ -122,7 +133,6 @@ class Player(pygame.sprite.Sprite):
         self.collide_with_walls('y_direction')
         self.rect.center = self.hit_rect.center
         self.collide_with_tanks()  # Thêm xử lý va chạm với các xe tăng khác
-
         if self.has_shield:
             self.draw_shield()
             self.shield_sprite.update()  # Cập nhật vị trí của Shield
@@ -238,7 +248,7 @@ class Wall(pygame.sprite.Sprite):
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self,socket, game, x, y):
+    def __init__(self,socket, game, x, y,msg):
         self.groups = game.all_sprites                     # ???????????
         pygame.sprite.Sprite.__init__(self, self.groups)    # ???????????
         self.game = game                                    # ???????????
@@ -251,6 +261,15 @@ class Enemy(pygame.sprite.Sprite):
         self.rot = 0  # degree
         self.last_fire = 0
         self.socket = socket
+        self.thread = threading.Thread(target=self.receive_data)
+        self.thread.start()
+        self.msg = msg  # Save the msg from main
+        
+    def receive_data(self):
+        while True:
+            data = self.socket.recv(1024).decode('utf-8')  # Receive data from the server
+            self.handle_server_data(data)  # Handle the received data
+            
     def keys(self):
         # get key for velocity every frame
         data = None  # Initialize data
@@ -259,19 +278,19 @@ class Enemy(pygame.sprite.Sprite):
         keys_state = pygame.key.get_pressed()
         if keys_state[pygame.K_a]:
             self.rotation_speed = +RotationSpeedOfEnemy
-            data = "LEFT"
+            data = "P2LEFT"
             print(data)
         if keys_state[pygame.K_d]:
             self.rotation_speed = -RotationSpeedOfEnemy
-            data = "RIGHT"
+            data = "P2RIGHT"
             print(data)
         if keys_state[pygame.K_w]:
             self.vel = vector(0, enemySpeed).rotate(-self.rot)
-            data = "UP"
+            data = "P2UP"
             print(data)
         if keys_state[pygame.K_s]:
             self.vel = vector(0, -enemySpeed/2).rotate(-self.rot)
-            data = "DOWN"
+            data = "P2DOWN"
             print(data)
         if keys_state[pygame.K_q]:
             now = pygame.time.get_ticks()
@@ -284,25 +303,27 @@ class Enemy(pygame.sprite.Sprite):
         if data:  # Check if data is not None
             self.socket.sendall(data.encode('utf-8'))
             
-    def handle_server_data(self):
-        # get key for velocity every frame
-        recvData = s.recv(2048 * 10)
-        data = recvData.decode()
+    def handle_server_data(self,data):
+        print(f"data: {data}")
+        print(f"Data type: {type(data)}")
         self.rotation_speed = 0  # not rotating
         self.vel = vector(0, 0)
         keys_state = pygame.key.get_pressed()
-        if data == "LEFT":
-            self.rotation_speed = +RotationSpeedOfPlayer
-         
-        if data == "RIGHT":
-            self.rotation_speed = -RotationSpeedOfPlayer
-          
-        if data == "UP":
-            self.vel = vector(0, playerSpeed).rotate(-self.rot)
+        if data == "P2LEFT":
+            self.rotation_speed = +RotationSpeedOfEnemy
+            print(self.rotation_speed)
+        if data == "P2RIGHT":
+            self.rotation_speed = -RotationSpeedOfEnemy
+            print(self.rotation_speed)
         
-        if data == "DOWN":
-            self.vel = vector(0, -playerSpeed/2).rotate(-self.rot)
-           
+        if data == "P2UP":
+            self.vel = vector(0, enemySpeed).rotate(-self.rot)
+            print(self.rotation_speed)
+        
+        if data == "P2DOWN":
+            self.vel = vector(0, -enemySpeed/2).rotate(-self.rot)
+            print(self.rotation_speed)
+        
         if keys_state[pygame.K_m]:
             now = pygame.time.get_ticks()
             if now - self.last_fire > bullet_rate:

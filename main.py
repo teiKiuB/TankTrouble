@@ -58,7 +58,7 @@ class Game:
             try:
                 recvData = s.recv(2048 * 10)
                 msg = recvData.decode()
-                print("Receive form:", msg)
+                print("Receive form:",repr(msg))
             except socket.error as e:
                 print("Socket connection error:", e)
                 break
@@ -106,9 +106,9 @@ class Game:
                 if tile == '1':
                     Wall(self, col, row)
                 if tile == '*':
-                    self.player = Player(s,self, col, row)
+                    self.player = Player(s,self, col, row,msg)
                 if tile == '-':
-                    self.enemy = Enemy(s,self, col, row)
+                    self.enemy = Enemy(s,self, col, row,msg)
                 # if tile == '@':
                 #     ShieldItem(self, col, row)
                     
